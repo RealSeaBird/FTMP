@@ -122,7 +122,7 @@ auto play_resume()
 
 
 int main(){
-  // Stuff Decleration
+  // Stuff Declaration
   if (home) {
     music_dir = std::string(home) + "/Music";
   }
@@ -164,10 +164,10 @@ int main(){
 
 
 
-
   current_song = song_from_index(songs_in_music_dir, song_selected);
 
-
+  //Magic number dont touch
+  bool has_it_done_it = false;
 
 
 
@@ -207,14 +207,41 @@ int main(){
     {
       Mix_PlayMusic(music, 1);
     }
-
   });
   auto pause_button = Button("⏸ Pause", [&]{ Mix_PauseMusic(); });
-  auto next_button = Button("⏭ Next", [&]{ /* call your next function */ });
+  auto next_button = Button("⏭ Next", [&]
+  {
+    if (has_it_done_it == true)
+    {
+      has_it_done_it = false;
+      current_song = song_from_index(songs_in_music_dir, song_selected);
+     auto song_to_play = string(home) + "/Music/" + current_song;
+     if (music) {
+       Mix_HaltMusic();
+       Mix_FreeMusic(music);
+     }
+
+     music = Mix_LoadMUS(song_to_play.c_str());
+     if (!music) {
+       std::cerr << "Failed to load music: " << Mix_GetError() << "\n";
+     }
+      Mix_PlayMusic(music, 1);
+    }
+
+    else if (has_it_done_it == false)
+    {
+      has_it_done_it = true;
+      song_selected++;
+
+
+
+    }
+
+  });
   auto prev_button = Button("⏮ Previous", [&]{ /* call your previous function */ });
   auto volume_slider = Slider("Volume:", &volume, 0, 100, 1);
 
-  // Conatiner
+  // Container
   auto container = Container::Vertical({
     Container::Horizontal(Components{playlists_menu, songs_menu}),
     Container::Horizontal(Components{play_button, pause_button}),
@@ -260,7 +287,7 @@ int main(){
 
 
 
-    // Retruning the stuff
+    // Returning the stuff
 
     return vbox({
       song_playing,
