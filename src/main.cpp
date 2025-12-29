@@ -109,7 +109,12 @@ std::vector<std::string> get_songs() {
   return files;
 }
 
+auto play_resume()
+{
 
+
+
+}
 
 
 
@@ -192,7 +197,18 @@ int main(){
   //Component Definition
   auto playlists_menu = Radiobox(&playlists, &playlist_selcted);
   auto songs_menu = Menu(&songs_in_music_dir, &song_selected, songs_menu_option );
-  auto play_button = Button("▶ Play", [&]{ Mix_PlayMusic(music, 1);});
+  auto play_button = Button("▶ Play", [&]
+  {
+    if (Mix_PlayingMusic() == 1)
+    {
+      Mix_ResumeMusic();
+    }
+    else if (Mix_PlayingMusic() == 0)
+    {
+      Mix_PlayMusic(music, 1);
+    }
+
+  });
   auto pause_button = Button("⏸ Pause", [&]{ Mix_PauseMusic(); });
   auto next_button = Button("⏭ Next", [&]{ /* call your next function */ });
   auto prev_button = Button("⏮ Previous", [&]{ /* call your previous function */ });
