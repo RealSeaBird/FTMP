@@ -167,7 +167,8 @@ int main(){
   current_song = song_from_index(songs_in_music_dir, song_selected);
 
   //Magic number dont touch
-  bool has_it_done_it = false;
+  bool has_it_done_it_next = false;
+  bool has_it_done_it_last = false;
 
 
 
@@ -211,9 +212,9 @@ int main(){
   auto pause_button = Button("⏸ Pause", [&]{ Mix_PauseMusic(); });
   auto next_button = Button("⏭ Next", [&]
   {
-    if (has_it_done_it == true)
+    if (has_it_done_it_next == true)
     {
-      has_it_done_it = false;
+      has_it_done_it_next = false;
       current_song = song_from_index(songs_in_music_dir, song_selected);
      auto song_to_play = string(home) + "/Music/" + current_song;
      if (music) {
@@ -228,9 +229,9 @@ int main(){
       Mix_PlayMusic(music, 1);
     }
 
-    else if (has_it_done_it == false)
+    else if (has_it_done_it_next == false)
     {
-      has_it_done_it = true;
+      has_it_done_it_next = true;
       song_selected++;
 
 
@@ -238,7 +239,36 @@ int main(){
     }
 
   });
-  auto prev_button = Button("⏮ Previous", [&]{ /* call your previous function */ });
+  auto prev_button = Button("⏮ Previous", [&]
+  {
+    if (has_it_done_it_last == true)
+    {
+      has_it_done_it_last = false;
+      current_song = song_from_index(songs_in_music_dir, song_selected);
+     auto song_to_play = string(home) + "/Music/" + current_song;
+     if (music) {
+       Mix_HaltMusic();
+       Mix_FreeMusic(music);
+     }
+
+     music = Mix_LoadMUS(song_to_play.c_str());
+     if (!music) {
+       std::cerr << "Failed to load music: " << Mix_GetError() << "\n";
+     }
+      Mix_PlayMusic(music, 1);
+    }
+
+    else if (has_it_done_it_last == false)
+    {
+      has_it_done_it_last = true;
+      song_selected--;
+
+
+
+    }
+
+
+  });
   auto volume_slider = Slider("Volume:", &volume, 0, 100, 1);
 
   // Container
