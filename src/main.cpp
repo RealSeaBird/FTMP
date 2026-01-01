@@ -18,7 +18,7 @@
 using namespace std;
 using namespace ftxui;
 
-// The important stuff idk anymore
+// The important stuff IDK anymore
 
 auto screen = ScreenInteractive::Fullscreen();
 
@@ -269,7 +269,7 @@ int main(){
 
 
   });
-  auto volume_slider = Slider("Volume:", &volume, 0, 100, 1);
+  auto volume_slider = Slider("Volume:", &volume, 0, 128, 1);
 
   // Container
   auto container = Container::Vertical({
@@ -299,11 +299,15 @@ int main(){
     auto button_prev = prev_button-> Render();
     auto slider_volume = volume_slider-> Render();
 
+    Mix_VolumeMusic(volume);
 
+    string volume_display = to_string(volume);
     // V/H boxes
 
-    auto song_playing = vbox({
-          text("Currently playing: " + current_song) | bold | border
+    auto song_playing = hbox({
+          text("Currently playing: " + current_song) | bold | border,
+          filler(),
+          text("Volume is: " + volume_display)
 
 
 
