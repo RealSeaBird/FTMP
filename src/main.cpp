@@ -36,7 +36,7 @@ string current_song;
 // Vectors
 
 vector<string> playlists = {
-  "stuff",
+    "stuff",
     "more stuff",
     "this is just a test"
 
@@ -46,11 +46,52 @@ vector<string> playlists = {
 
 vector<string> songs;
 
+
+
+vector<string> modes_options = {
+  "Music",
+  "Playlist Managment",
+  "Settings",
+  "Appearance"
+
+
+};
+
+
+vector<string> playlist_songs = {
+      "Random",
+      "This is a place holder",
+      "Kill me I hate C++",
+      "Meow :3",
+      "I C that this is written in C!"
+
+
+
+
+};
+
+vector<string> playlist_playlist = {
+  "Test1",
+  "Test2",
+    "Test3",
+    "Test4"
+
+
+};
+
+
+
+
+
 // Component Indexes
 
 int playlist_selcted = 0;
 int song_selected = 0;
 int volume = 60;
+int modes_selected = 0;
+int last_chosen = -1;
+int playlist_songs_number = 0;
+int playlist_playlist_number = 0;
 
 
 // Functions
@@ -109,13 +150,6 @@ std::vector<std::string> get_songs() {
   return files;
 }
 
-auto play_resume()
-{
-
-
-
-}
-
 
 
 
@@ -131,7 +165,6 @@ int main(){
   MenuOption songs_menu_option;
 
   Mix_Music* music = nullptr;
-
 
 
   //SDL stuff goes here
@@ -270,13 +303,29 @@ int main(){
 
   });
   auto volume_slider = Slider("Volume:", &volume, 0, 128, 1);
+  auto mode_choose = Dropdown(&modes_options, &modes_selected);
+  auto add_to_playlist = Button("Add Song",[&]{});
+  auto playlist_managment_songs = Radiobox(&playlist_songs, &playlist_songs_number);
+  auto playlist_managment_playlists = Radiobox(playlist_playlist, &playlist_playlist_number);
+
+
+
+
+
+
+
+
+
+
 
   // Container
   auto container = Container::Vertical({
     Container::Horizontal(Components{playlists_menu, songs_menu}),
     Container::Horizontal(Components{play_button, pause_button}),
     Container::Horizontal(Components{next_button, prev_button}),
-    Container::Horizontal(Components{volume_slider})
+    Container::Horizontal(Components{volume_slider, mode_choose}),
+    Container::Horizontal(Components{add_to_playlist, playlist_managment_songs}),
+    Container::Horizontal(Components{playlist_managment_playlists})
   });
 
 
@@ -298,6 +347,10 @@ int main(){
     auto button_next = next_button-> Render();
     auto button_prev = prev_button-> Render();
     auto slider_volume = volume_slider-> Render();
+    auto choose_mode = mode_choose-> Render();
+    auto playlist_to_add = add_to_playlist-> Render();
+    auto songs_managment_playlist = playlist_managment_songs-> Render();
+    auto playlists_managment_playlist = playlist_managment_playlists-> Render();
 
     Mix_VolumeMusic(volume);
 
@@ -320,24 +373,125 @@ int main(){
 
 
 
+    // Rendering Definitions
+
+  auto player_ctl =  hbox({
+     button_prev,
+     button_play,
+     button_pause,
+     button_next,
+     slider_volume | border
+
+
+   }) | bold | border;
+
+
+
+
+
+    auto whole_scene = vbox({
+                song_playing,
+                hbox ({
+                  menu_playlist | border | flex,
+                  menu_song | border | flex
+                 }),
+                hbox({
+                  button_prev,
+                  button_play,
+                  button_pause,
+                  button_next,
+                  slider_volume | border
+
+
+                }) | bold | border,
+                });
+
+
+
+
+
+
+
+
+
+
+
+
+    // Rendering conditions
+      switch (modes_selected)
+      {
+        case 0:
+          {
+            // Music (normal mode)
+            whole_scene = vbox({
+              song_playing,
+              hbox ({
+                menu_playlist | border | flex,
+                menu_song | border | flex
+               }),
+              hbox({
+                button_prev,
+                button_play,
+                button_pause,
+                button_next,
+                slider_volume | border
+
+
+              }) | bold | border,
+              });
+
+            break;
+          }
+
+        case 1:
+          {
+            // Playlist managment
+              music_dir = string(home) + "/Music";
+              whole_scene = vbox({
+                menu_song | border,
+                hbox({ //Child? ABORTION!!!!! (Holy shit what the fuck am I commenting)
+                  songs_managment_playlist | border,
+                  playlists_managment_playlist | border
+
+
+                }),
+                hbox({
+                  playlist_to_add,
+                  filler()
+
+
+                }) | border
+              });
+
+
+            break;
+          }
+        case 2:
+        // Settings
+        break;
+
+        case 3:
+        // Appearance
+        break;
+
+        default:
+        cout << "Something went shit wrong (Replace later)"; // Replace later
+        break;
+
+      }
+
+
 
     // Returning the stuff
 
     return vbox({
-      song_playing,
-      hbox ({
-        menu_playlist | border | flex,
-        menu_song | border | flex
-      }),
+      whole_scene
+,
       hbox({
-        button_prev,
-        button_play,
-        button_pause,
-        button_next,
-        slider_volume | border
+        choose_mode
 
 
-      }) | bold | border
+      })
 
 
 
